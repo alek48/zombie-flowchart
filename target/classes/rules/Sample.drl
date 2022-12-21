@@ -1,0 +1,80 @@
+package com.sample
+ 
+import com.sample.DroolsTest.*;
+
+declare Message
+	contents : String
+end
+
+declare Outcome
+	contents : String
+end
+
+declare Answer
+	question : String
+	answers : String[]
+	chosenAnswer : String
+end
+	
+rule "Display Message"
+	when 
+		$m : Message()
+	then
+		UserInterface.displayTextbox($m.getContents(), UserInterface.WARNING_MESSAGE);
+		retract($m);
+end
+
+rule "Display Question"
+	when 
+		$q : Answer(chosenAnswer == "")
+	then
+		// Set chosenAnswer to the string in answers at the position corresponding to the selected option in the prompt
+		$q.setChosenAnswer($q.getAnswers()[UserInterface.displayQuestion($q.getQuestion(), $q.getAnswers())]);
+		System.out.println($q.getChosenAnswer());
+		update($q);
+end
+
+rule "Display Outcome"
+	when
+		$o : Outcome()
+	then
+		UserInterface.displayTextbox($o.getContents(), UserInterface.PLAIN_MESSAGE);
+end
+	 
+rule "Will you survive the UNDEAD APOCALYPSE?"
+    when
+    then
+    	insert(new Message("There is no such thing as safe harbor from zombies. The odds are not in humanity's favor, but if you make the right decision, you might survive the imminent zombie apocalypse."));
+end
+
+rule "START - Where are you?"
+	when
+		not Answer()
+	then
+		insert(new Answer("Where are you?", new String[] {"Some lab", "Mansion", "Last thing I remember is a crash...", "Shopping mall", "Space?", "Rural town"}, ""));
+end
+
+rule "Are you alone?"
+	when 
+		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
+	then
+		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
+end
+
+rule "Better split up!"
+	when
+		$a : Answer(question == "Are you alone?", chosenAnswer == "No")
+	then
+		retract($a);
+		insert(new Message("Time to split up!"));
+end
+
+rule "START - OMG PUZZLES!"
+	when
+		$locationAnswer : Answer(question == "Where are you")
+		$aloneAnswer : Answer(question == "Are you alone?", chosenAnswer == "Yes")
+	then
+		// In the middle of the mansion storyline the answer to the initial question becomes immaterial
+		retract($locationAnswer);
+		insert(new Answer("OMG PUZZLES! - What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
+end
