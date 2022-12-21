@@ -2,12 +2,18 @@ package com.sample
  
 import com.sample.DroolsTest.*;
 
+declare enum PotentialOutcome 
+	DEAD("You are dead!"), MARTY("You are Marty McFly");
+	fullInfo : String;
+end
+
 declare Message
 	contents : String
+	priority : int
 end
 
 declare Outcome
-	contents : String
+	finalOutcome : PotentialOutcome
 end
 
 declare Answer
@@ -15,111 +21,34 @@ declare Answer
 	answers : String[]
 	chosenAnswer : String
 end
-	 
-rule "Will you survive the UNDEAD APOCALYPSE?"
-    when
-    then
-    	insert(new Message("There is no such thing as safe harbor from zombies. The odds are not in humanity's favor, but if you make the right decision, you might survive the imminent zombie apocalypse."));
-end
-
-rule "START - Where are you?"
-	when
-		not Answer()
-	then
-		insert(new Answer("Where are you?", new String[] {"Some lab", "Mansion", "Last thing I remember is a crash...", "Shopping mall", "Space?", "Rural town"}, ""));
-end
-
-//
-// MANSION SECTION
-//
-rule "Are you alone?"
-	when 
-		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
-	then
-		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
-end
-
-rule "Better split up!"
-	when
-		$a : Answer(question == "Are you alone?", chosenAnswer == "No")
-	then
-		retract($a);
-		insert(new Message("Time to split up!"));
-end
-
-rule "START - OMG PUZZLES!"
-	when
-		$locationAnswer : Answer(question == "Where are you")
-		$aloneAnswer : Answer(question == "Are you alone?", chosenAnswer == "Yes")
-	then
-		// In the middle of the mansion storyline the answer to the initial question becomes immaterial
-		retract($locationAnswer);
-		insert(new Answer("OMG PUZZLES! - What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
-end
-
-//
-// SHOPPING MALL SECTION
-//
-rule "mall - who do you team up with?"
-	when 
-		$a : Answer(question == "Where are you?", chosenAnswer == "Shopping mall")
-	then
-		insert(new Message("OMG ZOMBIE CONSUMERS!"));
-		insert(new Answer("Who do you team up with?", new String [] {"The endearing old couple","The promiscuous co-ed","The janitor with the walkie-talkie","Disgraced ex-cop searching for his daughter"}, ""));
-end
-
-rule "mall - The endearing old couple"
-	when 
-		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The endearing old couple")
-	then
-		insert(new Message("That was stupid"));
-		insert(new Outcome("YOU ARE DEAD!"));
-end
-
-rule "mall - promiscuous co-ed"
-	when 
-		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The promiscuous co-ed")
-	then
-		insert(new Message("Barricade selves in food court, defile Orange Julius stand"));
-		
-end
-
-rule "mall - barricade"
-	when 
-		$m : Message(contents == "Barricade selves in food court, defile Orange Julius stand")
-	then
-		UserInterface.displayTextbox($m.getContents());
-		retract($m);
-		insert(new Message("Zombies break your barrier of chairs and KFC buckets"));
-end
-
-rule "mall - barricade break"
-	when 
-		$m : Message(contents == "Zombies break your barrier of chairs and KFC buckets")
-	then
-		UserInterface.displayTextbox($m.getContents());
-		retract($m);
-		insert(new Message("Totally worth it"));
-end
-
-rule "mall - worth it"
-	when 
-		$m : Message(contents == "Totally worth it")
-	then
-		UserInterface.displayTextbox($m.getContents());
-		retract($m);
-		insert(new Outcome("YOU ARE DEAD!"));
-end
 
 //
 // other messages, handling questions and outcomes
 //
+
 rule "Display Message"
 	when 
-		$m : Message()
+		$m : Message(priority == 1)
 	then
 		UserInterface.displayTextbox($m.getContents());
 		retract($m);
+end
+
+//Reduce message priority if multiple messages are queued inorder
+rule "Queue Message"
+	when 
+		$m : Message(priority > 1)
+	then
+		$m.setPriority($m.getPriority() - 1);
+		update($m);
+end
+
+rule "Display Outcome"
+	when
+		$o : Outcome()
+	then
+		UserInterface.displayOutcome($o.getFinalOutcome().getFullInfo());
+		retract($o);
 end
 
 rule "Display Question"
@@ -131,10 +60,223 @@ rule "Display Question"
 		System.out.println($q.getChosenAnswer());
 		update($q);
 end
-
-rule "Display Outcome"
-	when
-		$o : Outcome()
-	then
-		UserInterface.displayOutcome($o.getContents());
+	 
+rule "Will you survive the UNDEAD APOCALYPSE?"
+    when
+    	not Answer()
+    	// TODO: Uncomment this for final version. This will loop the system immediately after an outcome assuming that Answer objects are consistently retracted
+    	// not Outcome()
+    then
+    	insert(new Message("There is no such thing as safe harbor from zombies. The odds are not in humanity's favor, but if you make the right decision, you might survive the imminent zombie apocalypse.", 1));
+		insert(new Answer("Where are you?", new String[] {"Some lab", "Mansion", "Last thing I remember is a crash...", "Shopping mall", "Space?", "Rural town"}, ""));
 end
+
+
+//
+// SHOPPING MALL SECTION
+//
+rule "mall - who do you team up with?"
+	when 
+		$a : Answer(question == "Where are you?", chosenAnswer == "Shopping mall")
+	then
+		retract($a);
+		insert(new Message("OMG ZOMBIE CONSUMERS!", 1));
+		insert(new Answer("Who do you team up with?", new String [] {"The endearing old couple","The promiscuous co-ed","The janitor with the walkie-talkie","Disgraced ex-cop searching for his daughter"}, ""));
+end
+
+rule "mall - The endearing old couple"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The endearing old couple")
+	then
+		retract($a);
+		insert(new Message("That was stupid", 1));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "mall - promiscuous co-ed"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The promiscuous co-ed")
+	then
+		retract($a);
+		insert(new Message("Barricade selves in food court, defile Orange Julius stand", 1));
+		insert(new Message("Zombies break your barrier of chairs and KFC buckets", 2));
+		insert(new Message("Totally worth it", 3));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+
+
+
+//
+// MANSION SECTION
+//
+
+
+rule "START - MANSION"
+	when 
+		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
+	then
+		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
+		// Are these retractions violating the context principle? If these answers are no longer useful for determining the outcome, they shouldn't waste memory space, especially in a system with looping questions.
+		retract($a);
+end
+
+rule "MANSION - SPLIT"
+	when
+		$a : Answer(question == "Are you alone?", chosenAnswer == "No")
+	then
+		retract($a);
+		insert(new Message("Time to split up!", 1));
+		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
+end
+
+rule "PUZZLES - START"
+	when
+		$a : Answer(question == "Are you alone?", chosenAnswer == "Yes")
+	then
+		retract($a);
+		insert(new Message("OMG PUZZLES!", 1));
+		insert(new Answer("What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
+end
+
+rule "PUZZLES - CHESS"
+	when
+		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Win a deadly game of chess") or Answer(question == "What would you like to do next?", chosenAnswer == "Win a deadly game of chess"))
+	then
+		retract($a);
+		insert(new Message("You *did* win, but you're still stuck...", 1));
+		insert(new Message("You've found a diary.", 2));
+		insert(new Answer("What would you like to do next?", new String[] {"Play magic piano", "Find a heart shaped key", "Move bookshelf", "Read a diary"}, ""));
+end
+
+rule "PUZZLES - PIANO"
+	when
+		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Play magic piano") or Answer(question == "What would you like to do next?", chosenAnswer == "Play magic piano"))
+	then
+		retract($a);
+		insert(new Message("Nice chords. Still stuck.", 1));
+		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Find a heart shaped key", "Move bookshelf"}, ""));
+end
+
+rule "PUZZLES - DIARY"
+	when
+		$a : Answer(question == "What would you like to do next?", chosenAnswer == "Read a diary")
+	then
+		retract($a);
+		insert(new Message("Boooring. Look somewhere else.", 1));
+		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
+end
+	
+rule "PUZZLES - KEY"
+	when
+		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Find a heart shaped key") or Answer(question == "What would you like to do next?", chosenAnswer == "Find a heart shaped key"))
+	then
+		retract($a);
+		insert(new Message("Good find. If only there were a heart-emblazoned door in this place...", 1));
+		insert(new Message("You've found a diary.", 2));
+		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Play magic piano", "Move bookshelf", "Read a diary"}, ""));
+end
+
+rule "PUZZLES - SOLVED"
+	when
+		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Move bookshelf") or Answer(question == "What would you like to do next?", chosenAnswer == "Move bookshelf"))
+	then
+		retract($a);
+		insert(new Message("OMG ZOMBIES!", 1));
+		insert(new Answer("What do you do?!", new String[] {"Run!", "Fight!"}, ""));
+end
+
+rule "ZOMBIES - FIGHT"
+	when
+		$a : (Answer(question == "What do you do?!", chosenAnswer == "Fight!"))
+	then
+		retract($a);
+		insert(new Answer("You take out your weapon and...", new String[] {"Crap, I exchanged my ammo for an ink ribbon", "Battle through zombie horde"}, ""));
+end
+
+rule "ZOMBIES - BATTLE HORDE"
+	when
+		$a : (Answer(question == "You take out your weapon and...", chosenAnswer == "Battle through zombie horde"))
+	then
+		retract($a);
+		insert(new Message("What is this, some kind of elevator?", 1));
+		insert(new Message("What is this, some kind of tunnel?", 2));
+		insert(new Message("What is this, some kind of ladder?", 3));
+		insert(new Message("What is this, some kind of hand trolly? Are you serious?", 4));
+		insert(new Message("You are now in the laboratory.", 5));
+		insert(new Answer("What do you see?", new String[] {"An unskippable cutscene starring the recurring villain", "Fleshy, asymmetrical monsters floating in massive incubation tubes"}, ""));
+end
+
+rule "ZOMBIES - INK RIBBON"
+	when
+		$a : (Answer(question == "You take out your weapon and...", chosenAnswer == "Crap, I exchanged my ammo for an ink ribbon"))
+	then
+		retract($a);
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+		
+rule "ZOMBIES - TANK CONTROLS"
+	when
+		$a : (Answer(question == "What do you do?!", chosenAnswer == "Run!"))
+	then
+		retract($a);
+		insert(new Message("You struggle with tank controls.", 1));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+//
+// LAB SECTION
+//
+rule "START - LAB"
+	when
+		$a : (Answer(question == "Where are you?", chosenAnswer == "Some lab"))
+	then
+		retract($a);
+		insert(new Answer("What do you see?", new String[] {"An unskippable cutscene starring the recurring villain", "Fleshy, asymmetrical monsters floating in massive incubation tubes"}, ""));
+end
+
+rule "LAB - VILLAIN"
+	when
+		$a : (Answer(question == "What do you see?", chosenAnswer == "An unskippable cutscene starring the recurring villain"))
+	then
+		retract($a);
+		insert(new Answer("Cut to preachy monologue about the nature of man", new String[] {"Activate self-destruct while villain is distracted", "This is boring, I'm going to make a sandwich"}, ""));
+end
+
+rule "LAB - DEATH"
+	when
+		$a : (Answer(question == "Cut to preachy monologue about the nature of man", chosenAnswer == "This is boring, I'm going to make a sandwich"))
+	then
+		retract($a);
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "LAB - ESCAPE"
+	when
+		$a : (Answer(question == "Cut to preachy monologue about the nature of man", chosenAnswer == "Activate self-destruct while villain is distracted") or Answer(question == "Have they escaped?", chosenAnswer == "Yes"))
+	then
+		retract($a);
+		insert(new Message("OMG ZOMBIE BOSS ROCKET LAUNCHER FIGHT!", 1));
+		insert(new Message("Escape on helicopter", 2));
+		insert(new Message("Time for a sequel!", 3));
+		insert(new Message("You are now in a rural town.", 4));
+end
+
+rule "LAB - MONSTERS"
+	when
+		$a : (Answer(question == "What do you see?", chosenAnswer == "Fleshy, asymmetrical monsters floating in massive incubation tubes"))
+	then
+		retract($a);
+		insert(new Answer("Have they escaped?", new String[] {"Yes", "No"}, ""));
+end
+
+rule "LAB - NOT ESCAPED"
+	when
+		$a : (Answer(question == "Have they escaped?", chosenAnswer == "No"))
+	then
+		retract($a);
+		insert(new Message("Everything is probably fine", 1));
+		insert(new Message("Uh-oh", 2));
+		insert(new Answer("Have they escaped?", new String[] {"Yes", "No"}, ""));
+end
+
