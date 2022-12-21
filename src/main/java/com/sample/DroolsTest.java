@@ -29,11 +29,25 @@ public class DroolsTest {
 
 		private static final long serialVersionUID = 1L;
 		private static final String blurb = "THE APOCALYPSE";
+<<<<<<< HEAD
 
 		public static void displayTextbox(String contents, int type) {
         	showMessageDialog(null, contents, blurb, type);
         }
 		
+=======
+		private static final String[] button_end = {"END"};
+		private static final String[] button_continue = {"Continue"};
+
+		public static void displayTextbox(String contents) {
+			showOptionDialog(null, contents, blurb, 0, PLAIN_MESSAGE, null, button_continue, null);
+        }
+		
+		public static void displayOutcome(String contents) {
+			showOptionDialog(null, contents, blurb, 0, PLAIN_MESSAGE, null, button_end, null);
+		}
+		
+>>>>>>> 151537c450cc8452bba8c3a5880a42f1152c4386
 		public static int displayQuestion(String question, String[] answers) {
 			int answer = showOptionDialog(null, question, blurb, 0, PLAIN_MESSAGE, null, answers, null);
 			return answer;
