@@ -15,31 +15,6 @@ declare Answer
 	answers : String[]
 	chosenAnswer : String
 end
-	
-rule "Display Message"
-	when 
-		$m : Message()
-	then
-		UserInterface.displayTextbox($m.getContents(), UserInterface.WARNING_MESSAGE);
-		retract($m);
-end
-
-rule "Display Question"
-	when 
-		$q : Answer(chosenAnswer == "")
-	then
-		// Set chosenAnswer to the string in answers at the position corresponding to the selected option in the prompt
-		$q.setChosenAnswer($q.getAnswers()[UserInterface.displayQuestion($q.getQuestion(), $q.getAnswers())]);
-		System.out.println($q.getChosenAnswer());
-		update($q);
-end
-
-rule "Display Outcome"
-	when
-		$o : Outcome()
-	then
-		UserInterface.displayTextbox($o.getContents(), UserInterface.PLAIN_MESSAGE);
-end
 	 
 rule "Will you survive the UNDEAD APOCALYPSE?"
     when
@@ -54,6 +29,9 @@ rule "START - Where are you?"
 		insert(new Answer("Where are you?", new String[] {"Some lab", "Mansion", "Last thing I remember is a crash...", "Shopping mall", "Space?", "Rural town"}, ""));
 end
 
+//
+// MANSION SECTION
+//
 rule "Are you alone?"
 	when 
 		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
@@ -77,4 +55,86 @@ rule "START - OMG PUZZLES!"
 		// In the middle of the mansion storyline the answer to the initial question becomes immaterial
 		retract($locationAnswer);
 		insert(new Answer("OMG PUZZLES! - What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
+end
+
+//
+// SHOPPING MALL SECTION
+//
+rule "mall - who do you team up with?"
+	when 
+		$a : Answer(question == "Where are you?", chosenAnswer == "Shopping mall")
+	then
+		insert(new Message("OMG ZOMBIE CONSUMERS!"));
+		insert(new Answer("Who do you team up with?", new String [] {"The endearing old couple","The promiscuous co-ed","The janitor with the walkie-talkie","Disgraced ex-cop searching for his daughter"}, ""));
+end
+
+rule "mall - The endearing old couple"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The endearing old couple")
+	then
+		insert(new Message("That was stupid"));
+		insert(new Outcome("YOU ARE DEAD!"));
+end
+
+rule "mall - promiscuous co-ed"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The promiscuous co-ed")
+	then
+		insert(new Message("Barricade selves in food court, defile Orange Julius stand"));
+		
+end
+
+rule "mall - barricade"
+	when 
+		$m : Message(contents == "Barricade selves in food court, defile Orange Julius stand")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Zombies break your barrier of chairs and KFC buckets"));
+end
+
+rule "mall - barricade break"
+	when 
+		$m : Message(contents == "Zombies break your barrier of chairs and KFC buckets")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Totally worth it"));
+end
+
+rule "mall - worth it"
+	when 
+		$m : Message(contents == "Totally worth it")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Outcome("YOU ARE DEAD!"));
+end
+
+//
+// other messages, handling questions and outcomes
+//
+rule "Display Message"
+	when 
+		$m : Message()
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+end
+
+rule "Display Question"
+	when 
+		$q : Answer(chosenAnswer == "")
+	then
+		// Set chosenAnswer to the string in answers at the position corresponding to the selected option in the prompt
+		$q.setChosenAnswer($q.getAnswers()[UserInterface.displayQuestion($q.getQuestion(), $q.getAnswers())]);
+		System.out.println($q.getChosenAnswer());
+		update($q);
+end
+
+rule "Display Outcome"
+	when
+		$o : Outcome()
+	then
+		UserInterface.displayOutcome($o.getContents());
 end
