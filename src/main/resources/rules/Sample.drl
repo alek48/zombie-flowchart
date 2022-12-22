@@ -31,6 +31,149 @@ rule "Will you survive the UNDEAD APOCALYPSE?"
 end
 
 //
+// SPACE SECTION
+//
+
+rule "space - why here?"
+	when
+		$a : Answer(question == "Where are you?", chosenAnswer == "Space?")
+	then
+		insert(new Message("Complain about being in space"));
+		insert(new Answer("Why are you here?", new String[] {"Searching for lost girlfriend", "Answering distress beacon", "I don't know, I just thawed"}, ""));
+end
+
+rule "space - just thawed"
+	when
+		$a : Answer(question == "Why are you here?", chosenAnswer == "I don't know, I just thawed")
+	then
+		insert(new Message("OMG\nI'M NAKED AND THAT'S A ZOMBIE!"));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "space - beacon"
+	when
+		$a : Answer(question == "Why are you here?", chosenAnswer == "Answering distress beacon")
+	then
+		insert(new Message("It's a trap, obviously"));
+		insert(new Answer("OMG\nSPACE ZOMBIES!", new String[] {"Dismember undead crew", "Space weapons are hard"}, ""));	
+end
+
+rule "space - space weapons"
+	when
+		$a : Answer(question == "OMG\nSPACE ZOMBIES!", chosenAnswer == "Space weapons are hard")
+	then
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "space - dismember crew"
+	when
+		$a : Answer(question == "OMG\nSPACE ZOMBIES!", chosenAnswer == "Dismember undead crew")
+	then
+		insert(new Message("Set collision course for sun"));
+end
+
+rule "space - dismember -> sun collision"
+	when 
+		$m : Message(contents == "Set collision course for sun")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("OMG\nTENTACLE BOSS ZOMBIE!"));
+end
+
+rule "space - tentacle boss"
+	when 
+		$m : Message(contents == "OMG\nTENTACLE BOSS ZOMBIE!")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Escape via pod and crash land"));
+end
+
+rule "space - crash land"
+	when
+		$m : Message(contents == "Escape via pod and crash land")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("RURAL TOWN"));
+		insert(new Answer("Are you with...", new String [] {"The military","A biker, veteran, student, and systems analyst"}, ""));
+end
+
+rule "space - lost girlfriend"
+	when
+		$a : Answer(question == "Why are you here?", chosenAnswer == "Searching for lost girlfriend")
+	then
+		insert(new Message("OMG\nZOMBIE GIRLFRIEND!"));
+		insert(new Answer("How attached to her are you?", new String [] {"Love of my life","Meh..."}, ""));
+end
+
+rule "space - zombie honeymoon"
+	when
+		$a : Answer(question == "How attached to her are you?", chosenAnswer == "Love of my life")
+	then
+		insert(new Message("OMG\nZOMBIE HONEYMOON!"));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "space - not you, me"
+	when
+		$a : Answer(question == "How attached to her are you?", chosenAnswer == "Meh...")
+	then
+		insert(new Message("\"It's not you, it's me\", reach for breakup shotgun"));
+end
+
+rule "space - girlfriend -> sun collision"
+	when 
+		$m : Message(contents == "\"It's not you, it's me\", reach for breakup shotgun")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Set collision course for sun"));
+end
+
+//
+// BARN SECTION
+//
+
+rule "barn - are you in a barn?"
+	when
+		$a : Answer(question == "Where are you?", chosenAnswer == "Last thing I remember is a crash...")
+	then
+		insert(new Answer("Are you in a barn?", new String[] {"Yes", "No, it's a shed"}, ""));
+end
+
+rule "barn - wise ass"
+	when
+		$a : Answer(question == "Are you in a barn?", chosenAnswer == "No, it's a shed")
+	then
+		insert(new Message("Close enough, wise ass"));
+		insert(new Answer("Is it 1943?", new String[] {"Yes","No, it's 1955"}, ""));
+end
+
+rule "barn - It's a barn"
+	when
+		$a : Answer(question == "Are you in a barn?", chosenAnswer == "Yes")
+	then
+		insert(new Answer("Is it 1943?", new String[] {"Yes","No, it's 1955"}, ""));
+end
+
+rule "barn - nazi zombies"
+	when
+		$a : Answer(question == "Is it 1943?", chosenAnswer == "Yes")
+	then
+		insert(new Message("OMG\nNAZI ZOMBIES"));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "barn - McFly"
+	when
+		$a : Answer(question == "Is it 1943?", chosenAnswer == "No, it's 1955")
+	then
+		insert(new Outcome(PotentialOutcome.MARTY));
+end
+	
+//
 // SHOPPING MALL SECTION
 //
 rule "mall - who do you team up with?"
@@ -84,6 +227,255 @@ rule "mall - worth it"
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
+rule "mall - The janitor with the walkie-talkie"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The janitor with the walkie-talkie")
+	then
+		insert(new Message("Listen to his life story"));
+		
+end
+
+rule "mall - life story"
+	when 
+		$m : Message(contents == "Listen to his life story")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Take maintenance tunnels tunnels to roof where rescue awaits"));
+end
+
+rule "mall - maintenance tunnels"
+	when 
+		$m : Message(contents == "Take maintenance tunnels tunnels to roof where rescue awaits")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Answer("Last stand against zombie horde", new String [] {"Help janitor","Leave janitor"}, ""));
+end
+
+rule "mall - last stand"
+	when 
+		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Help janitor")
+	then
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "mall - shed a tear"
+	when 
+		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Leave janitor")
+	then
+		insert(new Message("Shed a single tear"));
+end
+
+rule "mall - escape"
+	when
+		$m : Message(contents == "Shed a single tear")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Escape on helicopter"));
+end
+
+rule "mall - comic relief"
+	when 
+		$a : Answer(question == "Who do you team up with?", chosenAnswer == "Disgraced ex-cop searching for his daughter")
+	then
+		insert(new Message("Provide comic relief while cop does all the killing"));
+end
+
+rule "mall - cop last stand"
+	when 
+		$m : Message(contents == "Provide comic relief while cop does all the killing")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Answer("Last stand against zombie horde", new String [] {"Cop abandons you","Cop abandons you, aim for the chopper's gas tank in retaliation"}, ""));
+end
+
+rule "mall - cop abandons"
+	when 
+		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Cop abandons you")
+	then
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "mall - cop abandons, revenge"
+	when 
+		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Cop abandons you, aim for the chopper's gas tank in retaliation")
+	then
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+//
+// RURAL TOWN SECTION
+//
+rule "rural - are you with?"
+	when 
+		$a : Answer(question == "Where are you?", chosenAnswer == "Rural town")
+	then
+		insert(new Answer("Are you with...", new String [] {"The military","A biker, veteran, student, and systems analyst"}, ""));
+end
+
+rule "rural - the military"
+	when 
+		$a : Answer(question == "Are you with...", chosenAnswer == "The military")
+	then
+		insert(new Answer("What are they armed with?", new String [] {"Dreamcast keyboard","Guns"}, ""));
+end
+
+rule "rural - dreamcast keyboard"
+	when 
+		$a : Answer(question == "What are they armed with?", chosenAnswer == "Dreamcast keyboard")
+	then
+		insert(new Message("Words per minute < 13"));
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "rural - guns"
+	when 
+		$a : Answer(question == "What are they armed with?", chosenAnswer == "Guns")
+	then
+		insert(new Message("...but no armor"));
+		insert(new Answer("Listen to them whine about inevitable flesh wound", new String [] {"Shoot them in the face","Wait it out"}, ""));
+end
+
+rule "rural - shoot->shelter"
+	when 
+		$a : Answer(question == "Listen to them whine about inevitable flesh wound", chosenAnswer == "Shoot them in the face")
+	then
+		insert(new Answer("Seek shelter at...", new String [] {"Parents' house","Motel"}, ""));
+end
+
+rule "rural - wait it out"
+	when 
+		$a : Answer(question == "Listen to them whine about inevitable flesh wound", chosenAnswer == "Wait it out")
+	then
+		insert(new Message("OMG\nEX-COMRADE ZOMBIES!"));
+end
+
+rule "rural - comrade zombies"
+	when 
+		$m : Message(contents == "OMG\nEX-COMRADE ZOMBIES!")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Sgt. Fodder gives you love bite"));
+end
+
+rule "rural - love bite"
+	when 
+		$m : Message(contents == "Sgt. Fodder gives you love bite")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Start feeling ill, chronicle symptoms in diary"));
+end
+
+rule "rural - feeling ill"
+	when 
+		$m : Message(contents == "Start feeling ill, chronicle symptoms in diary")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "rural - biker,vet... ->shelter"
+	when 
+		$a : Answer(question == "Are you with...", chosenAnswer == "A biker, veteran, student, and systems analyst")
+	then
+		insert(new Answer("Seek shelter at...", new String [] {"Parents' house","Motel"}, ""));
+end
+
+rule "rural - parents' house"
+	when 
+		$a : Answer(question == "Seek shelter at...", chosenAnswer == "Parents' house")
+	then
+		insert(new Message("Is that a zombie on the lawn?"));
+end
+
+rule "rural - zombie on lawn"
+	when 
+		$m : Message(contents == "Is that a zombie on the lawn?")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("We don't want zombies on the lawn"));
+end
+
+rule "rural - no zombies on lawn"
+	when 
+		$m : Message(contents == "We don't want zombies on the lawn")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("OMG\nPLANTS VS. ZOMBIES"));
+end
+
+rule "rural - PvZ"
+	when 
+		$m : Message(contents == "OMG\nPLANTS VS. ZOMBIES")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Not enough sun!"));
+end
+
+rule "rural - not enough sun"
+	when
+		$m : Message(contents == "Not enough sun!")
+	then
+		insert(new Outcome(PotentialOutcome.DEAD));
+end
+
+rule "rural - motel"
+	when 
+		$a : Answer(question == "Seek shelter at...", chosenAnswer == "Motel")
+	then
+		insert(new Message("Talk to manager with glass eye about End of Days"));
+end
+
+rule "rural - glass eye"
+	when 
+		$m : Message(contents == "Talk to manager with glass eye about End of Days")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Cue preachy monologue about nature of man"));
+end
+
+rule "rural - preachy talk"
+	when 
+		$m : Message(contents == "Cue preachy monologue about nature of man")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Impolitely seize glass eye and stash in inventory"));
+end
+
+rule "rural - seize glass eye"
+	when 
+		$m : Message(contents == "Impolitely seize glass eye and stash in inventory")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("Conveniently stumble upon large iron gate with eye-shaped hole"));
+end
+
+rule "rural - eye hole"
+	when
+		$m : Message(contents == "Conveniently stumble upon large iron gate with eye-shaped hole")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("MANSION"));
+		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
+end
+
+//
+// MANSION SECTION
+//
+
 rule "START - MANSION"
 	when 
 		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
@@ -103,7 +495,7 @@ rule "PUZZLES - START"
 	when
 		$a : Answer(question == "Are you alone?", chosenAnswer == "Yes")
 	then
-		insert(new Message("OMG PUZZLES!"));
+		insert(new Message("OMG\nPUZZLES!"));
 		insert(new Answer("What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
 end
 
@@ -143,7 +535,7 @@ rule "PUZZLES - SOLVED"
 	when
 		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Move bookshelf") or Answer(question == "What would you like to do next?", chosenAnswer == "Move bookshelf"))
 	then
-		insert(new Message("OMG ZOMBIES!"));
+		insert(new Message("OMG\nZOMBIES!"));
 		insert(new Answer("What do you do?!", new String[] {"Run!", "Fight!"}, ""));
 end
 
@@ -211,6 +603,9 @@ rule "ZOMBIES - TANK CONTROLS"
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
+//
+// LAB SECTION
+//
 rule "START - LAB"
 	when
 		$a : (Answer(question == "Where are you?", chosenAnswer == "Some lab"))
@@ -236,12 +631,12 @@ rule "LAB - ESCAPE"
 	when
 		$a : (Answer(question == "Cut to preachy monologue about the nature of man", chosenAnswer == "Activate self-destruct while villain is distracted") or Answer(question == "Have they escaped?", chosenAnswer == "Yes"))
 	then
-		insert(new Message("OMG ZOMBIE BOSS ROCKET LAUNCHER FIGHT!"));
+		insert(new Message("OMG\nZOMBIE BOSS ROCKET LAUNCHER FIGHT!"));
 end
 
 rule "LAB - OMG ROCKET LAUNCHER"
 	when
-		$m : Message(contents == "OMG ZOMBIE BOSS ROCKET LAUNCHER FIGHT!")
+		$m : Message(contents == "OMG\nZOMBIE BOSS ROCKET LAUNCHER FIGHT!")
 	then
 		UserInterface.displayTextbox($m.getContents());
 		retract($m);
@@ -255,7 +650,16 @@ rule "LAB - ESCAPE WITH HELICOPTER"
 		UserInterface.displayTextbox($m.getContents());
 		retract($m);
 		insert(new Message("Time for a sequel!"));
-		// TODO: Implement - Insert start question for rural town scenario
+end
+
+rule "LAB - SEQUEL"
+	when
+		$m : Message(contents == "Time for a sequel!")
+	then
+		UserInterface.displayTextbox($m.getContents());
+		retract($m);
+		insert(new Message("RURAL TOWN"));
+		insert(new Answer("Are you with...", new String [] {"The military","A biker, veteran, student, and systems analyst"}, ""));
 end
 
 rule "LAB - MONSTERS"
