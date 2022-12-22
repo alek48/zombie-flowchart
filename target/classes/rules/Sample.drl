@@ -24,7 +24,6 @@ end
 	 
 rule "Will you survive the UNDEAD APOCALYPSE?"
     when
-    	not Answer()
     then
     	insert(new Message("There is no such thing as safe harbor from zombies. The odds are not in humanity's favor, but if you make the right decision, you might survive the imminent zombie apocalypse."));
 		insert(new Answer("Where are you?", new String[] {"Some lab", "Mansion", "Last thing I remember is a crash...", "Shopping mall", "Space?", "Rural town"}, ""));
@@ -38,6 +37,7 @@ rule "space - why here?"
 	when
 		$a : Answer(question == "Where are you?", chosenAnswer == "Space?")
 	then
+		retract($a);
 		insert(new Message("Complain about being in space"));
 		insert(new Answer("Why are you here?", new String[] {"Searching for lost girlfriend", "Answering distress beacon", "I don't know, I just thawed"}, ""));
 end
@@ -46,6 +46,7 @@ rule "space - just thawed"
 	when
 		$a : Answer(question == "Why are you here?", chosenAnswer == "I don't know, I just thawed")
 	then
+		retract($a);
 		insert(new Message("OMG\nI'M NAKED AND THAT'S A ZOMBIE!"));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -54,6 +55,7 @@ rule "space - beacon"
 	when
 		$a : Answer(question == "Why are you here?", chosenAnswer == "Answering distress beacon")
 	then
+		retract($a);
 		insert(new Message("It's a trap, obviously"));
 		insert(new Answer("OMG\nSPACE ZOMBIES!", new String[] {"Dismember undead crew", "Space weapons are hard"}, ""));	
 end
@@ -62,6 +64,7 @@ rule "space - space weapons"
 	when
 		$a : Answer(question == "OMG\nSPACE ZOMBIES!", chosenAnswer == "Space weapons are hard")
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
@@ -69,6 +72,7 @@ rule "space - dismember crew"
 	when
 		$a : Answer(question == "OMG\nSPACE ZOMBIES!", chosenAnswer == "Dismember undead crew")
 	then
+		retract($a);
 		insert(new Message("Set collision course for sun"));
 end
 
@@ -104,6 +108,7 @@ rule "space - lost girlfriend"
 	when
 		$a : Answer(question == "Why are you here?", chosenAnswer == "Searching for lost girlfriend")
 	then
+		retract($a);
 		insert(new Message("OMG\nZOMBIE GIRLFRIEND!"));
 		insert(new Answer("How attached to her are you?", new String [] {"Love of my life","Meh..."}, ""));
 end
@@ -112,6 +117,7 @@ rule "space - zombie honeymoon"
 	when
 		$a : Answer(question == "How attached to her are you?", chosenAnswer == "Love of my life")
 	then
+		retract($a);
 		insert(new Message("OMG\nZOMBIE HONEYMOON!"));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -120,6 +126,7 @@ rule "space - not you, me"
 	when
 		$a : Answer(question == "How attached to her are you?", chosenAnswer == "Meh...")
 	then
+		retract($a);
 		insert(new Message("\"It's not you, it's me\", reach for breakup shotgun"));
 end
 
@@ -140,6 +147,7 @@ rule "barn - are you in a barn?"
 	when
 		$a : Answer(question == "Where are you?", chosenAnswer == "Last thing I remember is a crash...")
 	then
+		retract($a);
 		insert(new Answer("Are you in a barn?", new String[] {"Yes", "No, it's a shed"}, ""));
 end
 
@@ -147,6 +155,7 @@ rule "barn - wise ass"
 	when
 		$a : Answer(question == "Are you in a barn?", chosenAnswer == "No, it's a shed")
 	then
+		retract($a);
 		insert(new Message("Close enough, wise ass"));
 		insert(new Answer("Is it 1943?", new String[] {"Yes","No, it's 1955"}, ""));
 end
@@ -155,6 +164,7 @@ rule "barn - It's a barn"
 	when
 		$a : Answer(question == "Are you in a barn?", chosenAnswer == "Yes")
 	then
+		retract($a);
 		insert(new Answer("Is it 1943?", new String[] {"Yes","No, it's 1955"}, ""));
 end
 
@@ -162,6 +172,7 @@ rule "barn - nazi zombies"
 	when
 		$a : Answer(question == "Is it 1943?", chosenAnswer == "Yes")
 	then
+		retract($a);
 		insert(new Message("OMG\nNAZI ZOMBIES"));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -170,6 +181,7 @@ rule "barn - McFly"
 	when
 		$a : Answer(question == "Is it 1943?", chosenAnswer == "No, it's 1955")
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.MARTY));
 end
 	
@@ -180,6 +192,7 @@ rule "mall - who do you team up with?"
 	when 
 		$a : Answer(question == "Where are you?", chosenAnswer == "Shopping mall")
 	then
+		retract($a);
 		insert(new Message("OMG ZOMBIE CONSUMERS!"));
 		insert(new Answer("Who do you team up with?", new String [] {"The endearing old couple","The promiscuous co-ed","The janitor with the walkie-talkie","Disgraced ex-cop searching for his daughter"}, ""));
 end
@@ -188,6 +201,7 @@ rule "mall - The endearing old couple"
 	when 
 		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The endearing old couple")
 	then
+		retract($a);
 		insert(new Message("That was stupid"));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -197,6 +211,7 @@ rule "mall - promiscuous co-ed"
 	when 
 		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The promiscuous co-ed")
 	then
+		retract($a);
 		insert(new Message("Barricade selves in food court, defile Orange Julius stand"));
 end
 
@@ -231,6 +246,7 @@ rule "mall - The janitor with the walkie-talkie"
 	when 
 		$a : Answer(question == "Who do you team up with?", chosenAnswer == "The janitor with the walkie-talkie")
 	then
+		retract($a);
 		insert(new Message("Listen to his life story"));
 		
 end
@@ -257,6 +273,7 @@ rule "mall - last stand"
 	when 
 		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Help janitor")
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
@@ -264,6 +281,7 @@ rule "mall - shed a tear"
 	when 
 		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Leave janitor")
 	then
+		retract($a);
 		insert(new Message("Shed a single tear"));
 end
 
@@ -280,6 +298,7 @@ rule "mall - comic relief"
 	when 
 		$a : Answer(question == "Who do you team up with?", chosenAnswer == "Disgraced ex-cop searching for his daughter")
 	then
+		retract($a);
 		insert(new Message("Provide comic relief while cop does all the killing"));
 end
 
@@ -296,6 +315,7 @@ rule "mall - cop abandons"
 	when 
 		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Cop abandons you")
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
@@ -303,6 +323,7 @@ rule "mall - cop abandons, revenge"
 	when 
 		$a : Answer(question == "Last stand against zombie horde", chosenAnswer == "Cop abandons you, aim for the chopper's gas tank in retaliation")
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
@@ -313,6 +334,7 @@ rule "rural - are you with?"
 	when 
 		$a : Answer(question == "Where are you?", chosenAnswer == "Rural town")
 	then
+		retract($a);
 		insert(new Answer("Are you with...", new String [] {"The military","A biker, veteran, student, and systems analyst"}, ""));
 end
 
@@ -320,6 +342,7 @@ rule "rural - the military"
 	when 
 		$a : Answer(question == "Are you with...", chosenAnswer == "The military")
 	then
+		retract($a);
 		insert(new Answer("What are they armed with?", new String [] {"Dreamcast keyboard","Guns"}, ""));
 end
 
@@ -327,6 +350,7 @@ rule "rural - dreamcast keyboard"
 	when 
 		$a : Answer(question == "What are they armed with?", chosenAnswer == "Dreamcast keyboard")
 	then
+		retract($a);
 		insert(new Message("Words per minute < 13"));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -335,6 +359,7 @@ rule "rural - guns"
 	when 
 		$a : Answer(question == "What are they armed with?", chosenAnswer == "Guns")
 	then
+		retract($a);
 		insert(new Message("...but no armor"));
 		insert(new Answer("Listen to them whine about inevitable flesh wound", new String [] {"Shoot them in the face","Wait it out"}, ""));
 end
@@ -343,6 +368,7 @@ rule "rural - shoot->shelter"
 	when 
 		$a : Answer(question == "Listen to them whine about inevitable flesh wound", chosenAnswer == "Shoot them in the face")
 	then
+		retract($a);
 		insert(new Answer("Seek shelter at...", new String [] {"Parents' house","Motel"}, ""));
 end
 
@@ -350,6 +376,7 @@ rule "rural - wait it out"
 	when 
 		$a : Answer(question == "Listen to them whine about inevitable flesh wound", chosenAnswer == "Wait it out")
 	then
+		retract($a);
 		insert(new Message("OMG\nEX-COMRADE ZOMBIES!"));
 end
 
@@ -384,6 +411,7 @@ rule "rural - biker,vet... ->shelter"
 	when 
 		$a : Answer(question == "Are you with...", chosenAnswer == "A biker, veteran, student, and systems analyst")
 	then
+		retract($a);
 		insert(new Answer("Seek shelter at...", new String [] {"Parents' house","Motel"}, ""));
 end
 
@@ -391,6 +419,7 @@ rule "rural - parents' house"
 	when 
 		$a : Answer(question == "Seek shelter at...", chosenAnswer == "Parents' house")
 	then
+		retract($a);
 		insert(new Message("Is that a zombie on the lawn?"));
 end
 
@@ -432,6 +461,7 @@ rule "rural - motel"
 	when 
 		$a : Answer(question == "Seek shelter at...", chosenAnswer == "Motel")
 	then
+		retract($a);
 		insert(new Message("Talk to manager with glass eye about End of Days"));
 end
 
@@ -480,6 +510,7 @@ rule "START - MANSION"
 	when 
 		$a : Answer(question == "Where are you?", chosenAnswer == "Mansion")
 	then
+		retract($a);
 		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
 end
 
@@ -487,6 +518,7 @@ rule "MANSION - SPLIT"
 	when
 		$a : Answer(question == "Are you alone?", chosenAnswer == "No")
 	then
+		retract($a);
 		insert(new Message("Time to split up!"));
 		insert(new Answer("Are you alone?", new String [] {"Yes", "No"}, ""));
 end
@@ -495,6 +527,7 @@ rule "PUZZLES - START"
 	when
 		$a : Answer(question == "Are you alone?", chosenAnswer == "Yes")
 	then
+		retract($a);
 		insert(new Message("OMG\nPUZZLES!"));
 		insert(new Answer("What would you like to do first?", new String [] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
 end
@@ -503,6 +536,7 @@ rule "PUZZLES - CHESS"
 	when
 		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Win a deadly game of chess") or Answer(question == "What would you like to do next?", chosenAnswer == "Win a deadly game of chess"))
 	then
+		retract($a);
 		insert(new Message("You *did* win, but you're still stuck..."));
 		insert(new Answer("What would you like to do next?", new String[] {"Play magic piano", "Find a heart shaped key", "Move bookshelf", "Read a diary"}, ""));
 end
@@ -511,6 +545,7 @@ rule "PUZZLES - PIANO"
 	when
 		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Play magic piano") or Answer(question == "What would you like to do next?", chosenAnswer == "Play magic piano"))
 	then
+		retract($a);
 		insert(new Message("Nice chords. Still stuck."));
 		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Find a heart shaped key", "Move bookshelf"}, ""));
 end
@@ -519,6 +554,7 @@ rule "PUZZLES - DIARY"
 	when
 		$a : Answer(question == "What would you like to do next?", chosenAnswer == "Read a diary")
 	then
+		retract($a);
 		insert(new Message("Boooring. Look somewhere else."));
 		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Play magic piano", "Find a heart shaped key", "Move bookshelf"}, ""));
 end
@@ -527,6 +563,7 @@ rule "PUZZLES - KEY"
 	when
 		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Find a heart shaped key") or Answer(question == "What would you like to do next?", chosenAnswer == "Find a heart shaped key"))
 	then
+		retract($a);
 		insert(new Message("Good find. If only there were a heart-emblazoned door in this place..."));
 		insert(new Answer("What would you like to do next?", new String[] {"Win a deadly game of chess", "Play magic piano", "Move bookshelf", "Read a diary"}, ""));
 end
@@ -535,6 +572,7 @@ rule "PUZZLES - SOLVED"
 	when
 		$a : (Answer(question == "What would you like to do first?", chosenAnswer == "Move bookshelf") or Answer(question == "What would you like to do next?", chosenAnswer == "Move bookshelf"))
 	then
+		retract($a);
 		insert(new Message("OMG\nZOMBIES!"));
 		insert(new Answer("What do you do?!", new String[] {"Run!", "Fight!"}, ""));
 end
@@ -543,6 +581,7 @@ rule "ZOMBIES - FIGHT"
 	when
 		$a : (Answer(question == "What do you do?!", chosenAnswer == "Fight!"))
 	then
+		retract($a);
 		insert(new Answer("You take out your weapon and...", new String[] {"Crap, I exchanged my ammo for an ink ribbon", "Battle through zombie horde"}, ""));
 end
 
@@ -550,6 +589,7 @@ rule "ZOMBIES - BATTLE HORDE"
 	when
 		$a : (Answer(question == "You take out your weapon and...", chosenAnswer == "Battle through zombie horde"))
 	then
+		retract($a);
 		insert(new Message("What is this, some kind of elevator?"));
 end
 
@@ -592,6 +632,7 @@ rule "ZOMBIES - INK RIBBON"
 	when
 		$a : (Answer(question == "You take out your weapon and...", chosenAnswer == "Crap, I exchanged my ammo for an ink ribbon"))
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 		
@@ -599,6 +640,7 @@ rule "ZOMBIES - TANK CONTROLS"
 	when
 		$a : (Answer(question == "What do you do?!", chosenAnswer == "Run!"))
 	then
+		retract($a);
 		insert(new Message("You struggle with tank controls."));
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
@@ -610,6 +652,7 @@ rule "START - LAB"
 	when
 		$a : (Answer(question == "Where are you?", chosenAnswer == "Some lab"))
 	then
+		retract($a);
 		insert(new Answer("What do you see?", new String[] {"An unskippable cutscene starring the recurring villain", "Fleshy, asymmetrical monsters floating in massive incubation tubes"}, ""));
 end
 
@@ -617,6 +660,7 @@ rule "LAB - VILLAIN"
 	when
 		$a : (Answer(question == "What do you see?", chosenAnswer == "An unskippable cutscene starring the recurring villain"))
 	then
+		retract($a);
 		insert(new Answer("Cut to preachy monologue about the nature of man", new String[] {"Activate self-destruct while villain is distracted", "This is boring, I'm going to make a sandwich"}, ""));
 end
 
@@ -624,6 +668,7 @@ rule "LAB - DEATH"
 	when
 		$a : (Answer(question == "Cut to preachy monologue about the nature of man", chosenAnswer == "This is boring, I'm going to make a sandwich"))
 	then
+		retract($a);
 		insert(new Outcome(PotentialOutcome.DEAD));
 end
 
@@ -631,6 +676,7 @@ rule "LAB - ESCAPE"
 	when
 		$a : (Answer(question == "Cut to preachy monologue about the nature of man", chosenAnswer == "Activate self-destruct while villain is distracted") or Answer(question == "Have they escaped?", chosenAnswer == "Yes"))
 	then
+		retract($a);
 		insert(new Message("OMG\nZOMBIE BOSS ROCKET LAUNCHER FIGHT!"));
 end
 
@@ -666,6 +712,7 @@ rule "LAB - MONSTERS"
 	when
 		$a : (Answer(question == "What do you see?", chosenAnswer == "Fleshy, asymmetrical monsters floating in massive incubation tubes"))
 	then
+		retract($a);
 		insert(new Answer("Have they escaped?", new String[] {"Yes", "No"}, ""));
 end
 
@@ -673,6 +720,7 @@ rule "LAB - NOT ESCAPED"
 	when
 		$a : (Answer(question == "Have they escaped?", chosenAnswer == "No"))
 	then
+		retract($a);
 		insert(new Message("Everything is probably fine"));
 end
 
